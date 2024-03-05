@@ -41,6 +41,7 @@ def main():
             stats.append(f"{TEAMNUMBERS[i]}")
             stats[2:((len(CATAGORIES)) + 2)] = getData(TEAMNUMBERS[i])
             writer.writerow(stats)
+            print(f"team {i + 1} done")
 
 def getData(teamNumber):
     print("before data api")
@@ -68,7 +69,7 @@ def getData(teamNumber):
     autoPoints = autoYellowPointsIndividual + autoPurplePointsIndividual + autoNavPointsIndividual + autoPixelPoints
 
     egPoints = egDronePointsIndividual + egNavPointsIndividual
-    totalPointsNp = autoPoints + egPoints + dcPoints
+    totalPointsNp = autoPoints + egPoints + (dcPoints/4)
 
     return (tb1, tb2, autoYellowPointsIndividual, autoPurplePointsIndividual, autoPixelPoints,
             autoNavPointsIndividual,
