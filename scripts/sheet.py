@@ -16,15 +16,15 @@ SPREADSHEET_ID = '1wdHvDBQZh2K5U2rjHT-AxW_xl7sDGrvIe_bPLRlxASM'
 
 def main():
     credentials = None
-    if os.path.exists("token.json"):
-        credentials = Credentials.from_authorized_user_file("token.json", SCOPES)
+    if os.path.exists("../jsons/token.json"):
+        credentials = Credentials.from_authorized_user_file("../jsons/token.json", SCOPES)
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file("../jsons/credentials.json", SCOPES)
             credentials = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
+        with open("../jsons/token.json", "w") as token:
             token.write(credentials.to_json())
 
     try:

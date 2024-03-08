@@ -26,7 +26,7 @@ def main():
                   "egPoints", "totalPointsNp"]
     stats = []
 
-    with open('ilt + m3.csv', mode='w') as csvfile:
+    with open('../csvs/champs.csv', mode='w') as csvfile:
         fieldnames = []
         fieldnames.append("Team Name")
         fieldnames.append("Team Number")
@@ -48,24 +48,21 @@ def getData(teamNumber):
     response = requests.get(f'https://api.ftcscout.org/rest/v1/teams/{teamNumber}/events/2023')
     data = response.json()
     print("before ilt")
-    i, g = findILT(data)
+    i = findChamps(data)
+
+    print(data[i]["eventCode"])
 
     tb1 = data[i]["stats"]["tb1"]
     tb2 = data[i]["stats"]["tb2"]
 
-    dcPoints = (data[i]["stats"]['avg']["dcPoints"] + data[g]["stats"]['avg']["dcPoints"]) / 2
-    egDronePointsIndividual = (data[i]["stats"]['avg']["dronePointsIndividual"] + data[g]["stats"]['avg'][
-        "dronePointsIndividual"]) / 2
+    dcPoints = data[i]["stats"]['avg']["dcPoints"]
+    egDronePointsIndividual = data[i]["stats"]['avg']["dronePointsIndividual"]
     # totalPointsNp = (data[i]["stats"]['avg']["totalPointsNp"] + data[g]["stats"]['avg']["totalPointsNp"])/2
-    egNavPointsIndividual = (data[i]["stats"]['avg']['egNavPointsIndividual'] + data[g]['stats']['avg'][
-        'egNavPointsIndividual']) / 2
-    autoPixelPoints = (data[i]["stats"]['avg']["autoPixelPoints"] + data[g]['stats']['avg']['autoPixelPoints']) / 2
-    autoNavPointsIndividual = (data[i]["stats"]['avg']['autoNavPointsIndividual'] + data[g]["stats"]["avg"][
-        "autoNavPointsIndividual"]) / 2
-    autoYellowPointsIndividual = (data[i]["stats"]['avg']["yellowPointsIndividual"] + data[g]["stats"]["avg"][
-        "yellowPointsIndividual"]) / 2
-    autoPurplePointsIndividual = (data[i]["stats"]['avg']["purplePointsIndividual"] + data[g]["stats"]["avg"][
-        "purplePointsIndividual"]) / 2
+    egNavPointsIndividual = data[i]["stats"]['avg']['egNavPointsIndividual']
+    autoPixelPoints = data[i]["stats"]['avg']["autoPixelPoints"]
+    autoNavPointsIndividual = data[i]["stats"]['avg']['autoNavPointsIndividual']
+    autoYellowPointsIndividual = data[i]["stats"]['avg']["yellowPointsIndividual"]
+    autoPurplePointsIndividual = data[i]["stats"]['avg']["purplePointsIndividual"]
     autoPoints = autoYellowPointsIndividual + autoPurplePointsIndividual + autoNavPointsIndividual + autoPixelPoints
 
     egPoints = egDronePointsIndividual + egNavPointsIndividual
@@ -77,8 +74,8 @@ def getData(teamNumber):
             egPoints, totalPointsNp)
 
 
-def findILT(data):
-    EVENTORDER = ["LT", "M3", "M2", "M1", "M0"]
+def findChamps(data):
+    EVENTORDER = ["MP","LT", "M3", "M2", "M1", "M0"]
     events = []
 
     for i in range(len(data)):
@@ -89,26 +86,21 @@ def findILT(data):
 
 
     for i in range(len(events)):
-        if events[i] is not None and len(events[i]) >= 3 and events[i][-2] == "T" and events[i][-3] == "L":
+        if events[i] is not None and len(events[i]) >= 2 and events[i][-2] == "T" and events[i][-3] == "L":
             events[i] = "LT"
+        elif events[i] is not None and len(events[i]) >= 2 and events[i][-2] == "P" and events[i][-3] == "M":
+            events[i] = "MP"
         else:
             events[i] = events[i][-2:] if events[i] is not None else None
-    counter = 0
-    ilt = 0
-    m3 = 0
+
 
     for i in range(len(EVENTORDER) - 1):
         if EVENTORDER[i] in events:
             z = EVENTORDER[i]
             for g in range(len(events)):
-                if counter == 2:
-                    return ilt, m3
-                elif events[g] == z and counter == 0:
-                    ilt = g
-                    counter += 1
-                elif events[g] == z and counter == 1:
-                    m3 = g
-                    counter += 1
+                if events[g] == z:
+                    return g
+
 
 def getTeams(eventCode):
     response = requests.get(f'https://api.ftcscout.org/rest/v1/events/2023/{eventCode}/teams')
